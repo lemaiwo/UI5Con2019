@@ -28,10 +28,6 @@
     				}
     			};
     			return this.odata(sObjectPath).get(mParameters);
-    		},
-    		createPerson:function(oPerson){
-    			var oData = oPerson.getJSON();
-    			return this.odata("/Persons").post(oData);
     		}
 
  - Register service in component
