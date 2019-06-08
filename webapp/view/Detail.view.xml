@@ -1,0 +1,112 @@
+<mvc:View controllerName="be.wl.PersonSkills.controller.Detail" xmlns="sap.m" xmlns:l="sap.ui.layout" xmlns:f="sap.ui.layout.form"
+	xmlns:semantic="sap.f.semantic" xmlns:mvc="sap.ui.core.mvc">
+	<semantic:SemanticPage id="detailPage" busy="{detailView>/busy}" busyIndicatorDelay="{detailView>/delay}">
+		<semantic:titleHeading>
+			<Title text="{pers>/Person/Firstname} {pers>/Person/Lastname}" level="H2"/>
+		</semantic:titleHeading>
+		<semantic:headerContent>
+			<ObjectAttribute title="{i18n>priceTitle}"/>
+			<ObjectNumber id="objectHeaderNumber" number="{ path: 'pers>/Person/Id', formatter: '.formatter.currencyValue' }"/>
+		</semantic:headerContent>
+		<semantic:content>
+			<l:VerticalLayout width="100%">
+				<f:Form id="generalform" editable="true"  visible="{= !${pers>/display}}">
+					<f:layout>
+						<f:ResponsiveGridLayout labelSpanXL="3" labelSpanL="3" labelSpanM="4" labelSpanS="12" adjustLabelSpan="false" emptySpanXL="0" emptySpanL="4"
+							emptySpanM="0" emptySpanS="0" columnsXL="2" columnsL="1" columnsM="1" singleContainerFullSize="false"/>
+					</f:layout>
+					<f:formContainers>
+						<f:FormContainer title=" ">
+							<f:formElements>
+								<f:FormElement label="Firstname">
+									<f:fields>
+										<Input value="{pers>/Person/Firstname}"/>
+									</f:fields>
+								</f:FormElement>
+								<f:FormElement label="Lastname">
+									<f:fields>
+										<Input value="{pers>/Person/Lastname}"/>
+									</f:fields>
+								</f:FormElement>
+								<f:FormElement label="Birthdate">
+									<f:fields>
+										<DatePicker
+											value="{path: 'pers>/Person/Birthdate', type: 'sap.ui.model.type.Date', formatOptions: { pattern: 'dd/MM/YYYY' , UTC:true}}"/>
+									</f:fields>
+								</f:FormElement>
+							</f:formElements>
+						</f:FormContainer>
+					</f:formContainers>
+				</f:Form>
+				<Table visible="{pers>/display}" id="lineItemsList" width="auto" items="{pers>/Person/Skills}"
+					noDataText="{i18n>detailLineItemTableNoDataText}" busyIndicatorDelay="{detailView>/lineItemTableDelay}">
+					<headerToolbar>
+						<Toolbar>
+							<Title id="lineItemsTitle" text="{detailView>/lineItemListTitle}" titleStyle="H3" level="H3"/>
+						</Toolbar>
+					</headerToolbar>
+					<columns>
+						<Column>
+							<Text text="{i18n>detailLineItemTableIDColumn}"/>
+						</Column>
+						<Column minScreenWidth="Tablet" demandPopin="true" hAlign="End">
+							<Text text="{i18n>detailLineItemTableUnitNumberColumn}"/>
+						</Column>
+					</columns>
+					<items>
+						<ColumnListItem>
+							<cells>
+								<ObjectIdentifier title="{pers>SkillName}" text="{Id}"/>
+								<ObjectNumber number="{ path: 'pers>Score', formatter: '.formatter.currencyValue' }"/>
+							</cells>
+						</ColumnListItem>
+					</items>
+				</Table>
+				<Table items="{pers>/Person/Skills}" fixedLayout="false" visible="{= !${pers>/display}}">
+					<columns>
+						<Column >
+							<Text text="Skill"/>
+						</Column>
+						<Column >
+							<Text text="Score"/>
+						</Column>
+						<Column >
+							<Text text="Edit"/>
+						</Column>
+						<Column >
+							<Text text="Delete"/>
+						</Column>
+					</columns>
+					<items>
+						<ColumnListItem>
+							<cells>
+								<Input value="{pers>SkillName}" editable="{pers>Editable}"/>
+								<Input value="{pers>Score}" editable="{pers>Editable}"/>
+								<l:VerticalLayout width="100%">
+									<Button icon="sap-icon://edit" visible="{= !${pers>Editable}}" press=".onChangeEditState"/>
+									<Button icon="sap-icon://display" visible="{= ${pers>Editable}}" press=".onChangeEditState"/>
+								</l:VerticalLayout>
+								<Button icon="sap-icon://delete" visible="{pers>Deletable}" press=".onDeleteSkill"/>
+							</cells>
+						</ColumnListItem>
+					</items>
+				</Table>
+			</l:VerticalLayout>
+		</semantic:content>
+		<!--Semantic ShareMenu Buttons-->
+		<semantic:sendEmailAction>
+			<semantic:SendEmailAction id="shareEmail" press=".onSendEmailPress"/>
+		</semantic:sendEmailAction>
+		<semantic:closeAction>
+			<semantic:CloseAction id="closeColumn" press=".onCloseDetailPress"/>
+		</semantic:closeAction>
+		<semantic:fullScreenAction>
+			<semantic:FullScreenAction id="enterFullScreen"
+				visible="{= !${device>/system/phone} &amp;&amp; !${appView>/actionButtonsInfo/midColumn/fullScreen}}" press=".toggleFullScreen"/>
+		</semantic:fullScreenAction>
+		<semantic:exitFullScreenAction>
+			<semantic:ExitFullScreenAction id="exitFullScreen"
+				visible="{= !${device>/system/phone} &amp;&amp; ${appView>/actionButtonsInfo/midColumn/fullScreen}}" press=".toggleFullScreen"/>
+		</semantic:exitFullScreenAction>
+	</semantic:SemanticPage>
+</mvc:View>

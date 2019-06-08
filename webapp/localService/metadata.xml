@@ -1,0 +1,31 @@
+<edmx:Edmx xmlns:edmx="http://schemas.microsoft.com/ado/2007/06/edmx"
+	xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" xmlns:sap="http://www.sap.com/Protocols/SAPData" Version="1.0">
+	<edmx:DataServices m:DataServiceVersion="2.0">
+		<Schema xmlns="http://schemas.microsoft.com/ado/2008/09/edm" Namespace="ZGW_UI5CON_SRV" xml:lang="en" sap:schema-version="1">
+			<EntityType Name="Subscription" sap:semantics="subscriptions" sap:content-version="1">
+				<Key><PropertyRef Name="ID"/></Key><Property Name="ID" Type="Edm.String" Nullable="false" MaxLength="32" sap:label="Sub. ID" sap:creatable="false" sap:updatable="false"
+					sap:filterable="false"/><Property Name="user" Type="Edm.String" MaxLength="12" m:FC_TargetPath="SyndicationAuthorName" m:FC_KeepInContent="false"
+					sap:label="User Name" sap:creatable="false" sap:filterable="false"/><Property Name="updated" Type="Edm.DateTime" Precision="0" m:FC_TargetPath="SyndicationUpdated" m:FC_KeepInContent="false"
+					sap:label="Time Stamp" sap:creatable="false" sap:filterable="false"/><Property Name="title" Type="Edm.String" MaxLength="255" m:FC_TargetPath="SyndicationTitle" m:FC_KeepInContent="false" sap:label="Title"
+					sap:filterable="false"/><Property Name="deliveryAddress" Type="Edm.String" sap:label="Delivery Address" sap:filterable="false"/><Property Name="persistNotifications" Type="Edm.Boolean" sap:label="Persist Notification" sap:filterable="false"/><Property Name="collection" Type="Edm.String" MaxLength="40" sap:label="Collection" sap:filterable="false"/><Property Name="filter" Type="Edm.String" sap:label="Filter" sap:filterable="false"/><Property Name="select" Type="Edm.String" MaxLength="255" sap:label="Select" sap:filterable="false"/><Property Name="changeType" Type="Edm.String" MaxLength="30" sap:label="Change Type"/></EntityType>
+			<EntityType Name="Notification" sap:semantics="notifications" sap:content-version="1">
+				<Key><PropertyRef Name="ID"/></Key><Property Name="ID" Type="Edm.String" Nullable="false" MaxLength="32" sap:label="Notification ID"/><Property Name="collection" Type="Edm.String" MaxLength="40" sap:label="Collection"/><Property Name="title" Type="Edm.String" m:FC_TargetPath="SyndicationTitle" m:FC_KeepInContent="false" sap:label="Notif. Text"/><Property Name="updated" Type="Edm.DateTime" Precision="0" m:FC_TargetPath="SyndicationUpdated" m:FC_KeepInContent="false"
+					sap:label="Time Stamp"/><Property Name="changeType" Type="Edm.String" MaxLength="30" sap:label="Change Type"/><Property Name="entriesOfInterest" Type="Edm.Int32" sap:label="No. of Entries"/><Property Name="recipient" Type="Edm.String" MaxLength="112" sap:label="Recipient" sap:creatable="false" sap:updatable="false"/></EntityType>
+			<EntityType Name="Person" sap:label="Person" sap:content-version="1">
+				<Key><PropertyRef Name="Id"/></Key><Property Name="Id" Type="Edm.Int32" Nullable="false" sap:label="Number"/><Property Name="Firstname" Type="Edm.String" MaxLength="40" sap:label="Char"/><Property Name="Lastname" Type="Edm.String" MaxLength="40" sap:label="Char"/><Property Name="Company" Type="Edm.String" MaxLength="40" sap:label="Char"/><Property Name="Birthdate" Type="Edm.DateTime" Precision="0" sap:label="Date"/><NavigationProperty Name="PersonHasSkills" Relationship="ZGW_UI5CON_SRV.PersonHasSkills" FromRole="FromRole_PersonHasSkills"
+					ToRole="ToRole_PersonHasSkills"/></EntityType>
+			<EntityType Name="Skill" sap:label="Skill" sap:content-version="1">
+				<Key><PropertyRef Name="Id"/></Key><Property Name="Id" Type="Edm.Int32" Nullable="false" sap:label="Number"/><Property Name="PersonId" Type="Edm.Int32" sap:label="Number"/><Property Name="SkillName" Type="Edm.String" MaxLength="40" sap:label="Char"/><Property Name="Score" Type="Edm.Int32" sap:label="Number"/></EntityType>
+			<Association Name="PersonHasSkills" sap:content-version="1"><End Type="ZGW_UI5CON_SRV.Person" Multiplicity="1" Role="FromRole_PersonHasSkills"/><End Type="ZGW_UI5CON_SRV.Skill" Multiplicity="*" Role="ToRole_PersonHasSkills"/>
+				<ReferentialConstraint>
+					<Principal Role="FromRole_PersonHasSkills"><PropertyRef Name="Id"/></Principal>
+					<Dependent Role="ToRole_PersonHasSkills"><PropertyRef Name="PersonId"/></Dependent>
+				</ReferentialConstraint>
+			</Association>
+			<EntityContainer Name="ZGW_UI5CON_SRV_Entities" m:IsDefaultEntityContainer="true" sap:supported-formats="atom json xlsx"><EntitySet Name="SubscriptionCollection" EntityType="ZGW_UI5CON_SRV.Subscription" sap:content-version="1"/><EntitySet Name="NotificationCollection" EntityType="ZGW_UI5CON_SRV.Notification" sap:creatable="false" sap:updatable="false"
+				sap:deletable="false" sap:addressable="false" sap:content-version="1"/><EntitySet Name="Persons" EntityType="ZGW_UI5CON_SRV.Person" sap:searchable="true" sap:content-version="1"/><EntitySet Name="Skills" EntityType="ZGW_UI5CON_SRV.Skill" sap:searchable="true" sap:content-version="1"/>
+				<AssociationSet Name="PersonHasSkills_AssocSet" Association="ZGW_UI5CON_SRV.PersonHasSkills" sap:creatable="false" sap:updatable="false"
+					sap:deletable="false" sap:content-version="1"><End EntitySet="Persons" Role="FromRole_PersonHasSkills"/><End EntitySet="Skills" Role="ToRole_PersonHasSkills"/></AssociationSet>
+			</EntityContainer><atom:link xmlns:atom="http://www.w3.org/2005/Atom" rel="self" href="./sap/ZGW_UI5CON_SRV/$metadata"/><atom:link xmlns:atom="http://www.w3.org/2005/Atom" rel="latest-version" href="./sap/ZGW_UI5CON_SRV/$metadata"/></Schema>
+	</edmx:DataServices>
+</edmx:Edmx>
