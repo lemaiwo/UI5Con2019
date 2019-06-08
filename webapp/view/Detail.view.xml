@@ -1,6 +1,6 @@
 <mvc:View controllerName="be.wl.PersonSkills.controller.Detail" xmlns="sap.m" xmlns:l="sap.ui.layout" xmlns:f="sap.ui.layout.form"
 	xmlns:semantic="sap.f.semantic" xmlns:mvc="sap.ui.core.mvc">
-	<semantic:SemanticPage id="detailPage" busy="{detailView>/busy}" busyIndicatorDelay="{detailView>/delay}">
+	<semantic:SemanticPage id="detailPage" busy="{detailView>/busy}" busyIndicatorDelay="{detailView>/delay}" showFooter="true">
 		<semantic:titleHeading>
 			<Title text="{pers>/Person/Firstname} {pers>/Person/Lastname}" level="H2"/>
 		</semantic:titleHeading>
@@ -63,6 +63,11 @@
 					</items>
 				</Table>
 				<Table items="{pers>/Person/Skills}" fixedLayout="false" visible="{= !${pers>/display}}">
+					<headerToolbar>
+						<Toolbar>
+							<Title text="Total: {pers>/Person/Total}" titleStyle="H3" level="H3"/>
+						</Toolbar>
+					</headerToolbar>
 					<columns>
 						<Column >
 							<Text text="Skill"/>
@@ -81,10 +86,9 @@
 						<ColumnListItem>
 							<cells>
 								<Input value="{pers>SkillName}" editable="{pers>Editable}"/>
-								<Input value="{pers>Score}" editable="{pers>Editable}"/>
+								<Input value="{path:'pers>Score',type: 'sap.ui.model.type.Integer'}" editable="{pers>Editable}"/>
 								<l:VerticalLayout width="100%">
-									<Button icon="sap-icon://edit" visible="{= !${pers>Editable}}" press=".onChangeEditState"/>
-									<Button icon="sap-icon://display" visible="{= ${pers>Editable}}" press=".onChangeEditState"/>
+									<ToggleButton icon="sap-icon://{= ${pers>Editable}?'display':'edit' }"  pressed="{pers>Editable}" />
 								</l:VerticalLayout>
 								<Button icon="sap-icon://delete" visible="{pers>Deletable}" press=".onDeleteSkill"/>
 							</cells>
@@ -93,6 +97,9 @@
 				</Table>
 			</l:VerticalLayout>
 		</semantic:content>
+		<semantic:footerMainAction >
+			<semantic:FooterMainAction  visible="{= !${pers>/display}}" text="Save" press=".onSave"/>
+		</semantic:footerMainAction>
 		<!--Semantic ShareMenu Buttons-->
 		<semantic:sendEmailAction>
 			<semantic:SendEmailAction id="shareEmail" press=".onSendEmailPress"/>

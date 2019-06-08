@@ -34,7 +34,16 @@ sap.ui.define([
 
 			this.setModel(oViewModel, "detailView");
 		},
-
+		onSave: function (oEvent) {
+			this.PersonState.newPerson().then((id) => {
+				this.getRouter().navTo("object", {
+					objectId: id
+				}, true);
+			});
+		},
+		onDeleteSkill:function(oEvent){
+			this.PersonState.deletePersonSkill(this.getIndexFromPath(oEvent.getSource()));
+		},
 		/* =========================================================== */
 		/* event handlers                                              */
 		/* =========================================================== */

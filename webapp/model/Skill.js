@@ -19,14 +19,17 @@ sap.ui.define([
 			this.Deletable = !!(this.SkillName || this.Score);
 		},
 		isEmpty:function(){
-			return this.SkillName === "" || this.Score === "";
+			return this.SkillName === "" || this.Score === 0;
+		},
+		isNotEmpty:function(){
+			return this.SkillName !== "" && this.Score >= 0;
 		},
 		getJSON: function () {
 			return {
-				Id: this.Id || "",
-				PersonId: this.PersonId || "",
+				Id: this.Id || 0,
+				PersonId: this.PersonId || 0,
 				SkillName: this.SkillName || "",
-				Score: this.Score || "0"
+				Score: this.Score || 0
 			};
 		}
 	});

@@ -84,21 +84,15 @@
 				},
 				"async": true
 			},
-			"routes": [
-				{
-					"pattern": "",
-					"name": "master",
-					"target": "master"
-				},
-				{
-					"pattern": "Persons/{objectId}",
-					"name": "object",
-					"target": [
-						"master",
-						"object"
-					]
-				}
-			],
+			"routes": [{
+				"pattern": "",
+				"name": "master",
+				"target": "master"
+			}, {
+				"pattern": "Persons/{objectId}",
+				"name": "object",
+				"target": ["master", "object"]
+			}],
 			"targets": {
 				"master": {
 					"viewName": "Master",
@@ -121,6 +115,12 @@
 					"viewId": "notFound"
 				}
 			}
+		},
+		"flexEnabled": true,
+		"resources": {
+			"js": [{
+				"uri": "libs/observable-slim.js"
+			}]
 		}
 	}
 }
