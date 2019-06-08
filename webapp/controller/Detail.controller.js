@@ -79,7 +79,7 @@ sap.ui.define([
 						Id: sObjectId
 					});
 					this.getOwnerComponent().oListSelector.selectAListItem("/" + sObjectPath);
-
+					
 					this.PersonState.getPerson(sObjectId);
 				});
 			}
