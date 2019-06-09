@@ -1,7 +1,146 @@
 # UI5Con2019
 ## Demo steps
 
+namespace: be.wl
+name: PersonSkills
+
  - Add CoreService
+ 
+        sap.ui.define([
+        	"sap/ui/base/Object"
+        ], function (Object) {
+        	"use strict";
+        
+        	return Object.extend("be.wl.PersonSkills.service.CoreService", {
+        		constructor: function (model) {
+        			Object.call(this);
+        			if (model) {
+        				this.setModel(model);
+        			}
+        		},
+        		setModel: function (model) {
+        			this.model = model;
+        		},
+        		odata: function (url) {
+        			var me = this;
+        			var core = {
+        				ajax: function (type, url, data, parameters) {
+        					var promise = new Promise(function (resolve, reject) {
+        						var args = [];
+        						var params = {};
+        						args.push(url);
+        						if (data) {
+        							args.push(data);
+        						}
+        						if (parameters) {
+        							params = parameters;
+        						}
+        						params.success = function (result, response) {
+        							resolve({
+        								data: result,
+        								response: response
+        							});
+        						};
+        						params.error = function (error) {
+        							reject(error);
+        						};
+        						args.push(params);
+        						me.model[type].apply(me.model, args);
+        					});
+        					return promise;
+        				}
+        			};
+        
+        			return {
+        				'get': function (params) {
+        					return core.ajax('read', url, false, params);
+        				},
+        				'post': function (data, params) {
+        					return core.ajax('create', url, data, params);
+        				},
+        				'put': function (data, params) {
+        					return core.ajax('update', url, data, params);
+        				},
+        				'delete': function (params) {
+        					return core.ajax('remove', url, false, params);
+        				}
+        			};
+        		},
+        		http: function (url) {
+        			var core = {
+        				ajax: function (method, url, headers, args, mimetype) {
+        					var promise = new Promise(function (resolve, reject) {
+        						var client = new XMLHttpRequest();
+        						var uri = url;
+        						if (args && method === 'GET') {
+        							uri += '?';
+        							var argcount = 0;
+        							for (var key in args) {
+        								if (args.hasOwnProperty(key)) {
+        									if (argcount++) {
+        										uri += '&';
+        									}
+        									uri += encodeURIComponent(key) + '=' + encodeURIComponent(args[key]);
+        								}
+        							}
+        						}
+        						if (args && (method === 'POST' || method === 'PUT')) {
+        							var data = {};
+        							for (var keyp in args) {
+        								if (args.hasOwnProperty(keyp)) {
+        									data[keyp] = args[keyp];
+        								}
+        							}
+        						}
+        						client.open(method, uri);
+        						
+        						if (method === 'POST' || method === 'PUT') {
+        							client.setRequestHeader("accept", "application/json");
+        							client.setRequestHeader("content-type", "application/json");
+        						}
+        						for (var keyh in headers) {
+        							if (headers.hasOwnProperty(keyh)) {
+        								client.setRequestHeader(keyh, headers[keyh]);
+        							}
+        						}
+        						if (data) {
+        							client.send(JSON.stringify(data));
+        						} else {
+        							client.send();
+        						}
+        						client.onload = function () {
+        							if (this.status == 200) {
+        								resolve(this.response);
+        							} else {
+        								reject(this.statusText);
+        							}
+        						};
+        						client.onerror = function () {
+        							reject(this.statusText);
+        						};
+        					});
+        					return promise;
+        				}
+        			};
+        
+        			return {
+        				'get': function (headers, args) {
+        					return core.ajax('GET', url, headers, args);
+        				},
+        				'post': function (headers, args) {
+        					return core.ajax('POST', url, headers, args);
+        				},
+        				'put': function (headers, args) {
+        					return core.ajax('PUT', url, headers, args);
+        				},
+        				'delete': function (headers, args) {
+        					return core.ajax('DELETE', url, headers, args);
+        				}
+        			};
+        		}
+        	});
+        }); 
+ 
  - Add PersonService
 
         sap.ui.define([
@@ -70,6 +209,83 @@
 		???
 - add state
 	- add base object
+
+            sap.ui.define([
+            	"sap/ui/base/Object",
+            	"sap/ui/model/json/JSONModel"
+            ], function (Object, JSONModel) {
+            	"use strict";
+            	return Object.extend("be.wl.PersonSkills.model.BaseObject", {
+            		constructor: function (data) {
+            			this.copyValues(data);
+            
+            			if (this.isState) {
+            				this.getModel().attachPropertyChange((oProperty) => {
+            					// this["update" + oProperty.getParameter("path")] && this["update" + oProperty.getParameter("path").substr(1)]();
+            					var fChangeFunction = this.getChangeFunction(oProperty.getParameter("path"));
+            					this.callChangeFunction(fChangeFunction, oProperty);
+            					if (oProperty.getParameter("context")) {
+            						fChangeFunction = this.getChangeFunction(oProperty.getParameter("context").getPath() + "/" + oProperty.getParameter("path"));
+            						this.callChangeFunction(fChangeFunction, oProperty.getParameter("context").getObject(), oProperty);
+            						//call parent
+            						var sPath = oProperty.getParameter("context").getPath();
+            						var sParent = sPath.split("/")[sPath.split("/").length - 1];
+            						if (!isNaN(parseInt(sParent))) { //in case of integer it's probably an array and we need to go one level up
+            							sPath = sPath.split("/").slice(0, sPath.split("/").length - 1).join("/");
+            						}
+            						var sSourcePath = sPath.split("/").slice(0, sPath.split("/").length - 1).join("/");
+            						var oSource = (sSourcePath && oProperty.getParameter("context").getModel().getProperty(sSourcePath));
+            						fChangeFunction = this.getChangeFunction(sPath);
+            						this.callChangeFunction(fChangeFunction, (oSource || oProperty.getParameter("context").getObject()), oProperty);
+            
+            					}
+            				}, this);
+            			}
+            		},
+            		getChangeFunction: function (sPath) {
+            			sPath = sPath.substr(0, 1) === "/" ? sPath.substr(1) : sPath;
+            			return sPath.split("/").reduce(function (prev,
+            				curr,
+            				idx, array) {
+            				if (idx === array.length - 1) {
+            					return prev[curr + "Changed"];
+            				}
+            				return curr && curr.length > 0 && prev ? prev[curr] : prev;
+            			}, this);
+            		},
+            		callChangeFunction: function (fChangeFunction, scope, args) {
+            			fChangeFunction && fChangeFunction.apply(scope, args);
+            		},
+            		copyValues: function (data) {
+            			if (data) {
+            				for (var field in data) {
+            					switch (typeof (data[field])) {
+            					case "object":
+            						if (data[field] && data[field]["results"]) {
+            							this[field] = data[field]["results"];
+            						}
+            						break;
+            					default:
+            						this[field] = data[field];
+            					}
+            				}
+            			}
+            		},
+            		getModel: function () {
+            			if (!this.model) {
+            				this.model = new JSONModel(this, true);
+            				//this.model.setData(this);
+            			}
+            			return this.model;
+            		},
+            		updateModel: function (bHardRefresh) {
+            			if (this.model) {
+            				this.model.refresh(bHardRefresh ? true : false);
+            			}
+            		}
+            	});
+            }); 
+	
 	- create person state
 
             sap.ui.define(["../model/BaseObject","../model/Person"], function (BaseObject, Person) {
@@ -204,15 +420,10 @@
     - Create empty Person object
     
     		createPerson: function () {
-    			// this.Person = new Person();
-    			var oPerson = new Person();
-    			this.Person = ObservableSlim.create(oPerson, true,  (changes)=>{
-    				console.log(JSON.stringify(changes));
-    				this.updateModel();
-    			});
+    			this.Person = new Person();
     			this.Person.addEmptySkill();
     			this.display = false;
-    			// this.updateModel();
+    			this.updateModel();
     		},
 
 
@@ -374,9 +585,70 @@
     				}, true);
     			});
     		},
-    
+    - delete skill
+        - add to basecontroller
+        
+        		getIndexFromPath: function (oSource) {
+        			var sPath = oSource.getBindingContext("pers").getPath();
+        			return parseInt(sPath.substr(sPath.lastIndexOf("/") + 1));
+        		},
+        		
+        - add to detail controller
+        
+        		onDeleteSkill:function(oEvent){
+        			this.PersonState.deletePersonSkill(this.getIndexFromPath(oEvent.getSource()));
+        		},
+        		
+        - add to state
+            
+        		deletePersonSkill: function (iIndex) {
+        			this.Person.deleteSkill(iIndex);
+        			// this.updateModel();
+        		}
+        
 	- on more thing
 	    - reactive!
     	    -  UI Changes properties
-    	    -  Calculated properties
+    	        -  Skill
+    	        
+                		SkillNameChanged: function (oEvent) {
+                			this.changeEditable();
+                		},
+                		ScoreChanged: function (oEvent) {
+                			this.changeEditable();
+                		},
+                		changeEditable: function () {
+                			this.Editable = !(this.SkillName && this.Score);
+                			this.Deletable = !!(this.SkillName || this.Score);
+                		},  
+    	        - Person
+    	        
+        	            SkillsChanged: function (oEvent) {
+                			if (!this.Skills.some((oSkill) => oSkill.isEmpty())) {
+                				this.addEmptySkill();
+                			}
+                		},
+    	    -  Calculated properties - Person total
+    	        
+                    Object.defineProperty(this, "Total", {
+        				get: () => {
+        					return (this.getSkills().reduce((iTotal, oSkill) => {
+        						iTotal += oSkill.Score
+        						return iTotal;
+        					}, 0) / this.getSkills().length )|| 0;
+        				}
+        			});
+
     	    -  remove refresh model -> observables
+    	    
+        	        createPerson: function () {
+            			// this.Person = new Person();
+            			var oPerson = new Person();
+            			this.Person = ObservableSlim.create(oPerson, true,  (changes)=>{
+            				console.log(JSON.stringify(changes));
+            				this.updateModel();
+            			});
+            			this.Person.addEmptySkill();
+            			this.display = false;
+            			// this.updateModel();
+            		},
