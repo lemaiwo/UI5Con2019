@@ -3,6 +3,9 @@
 
 namespace: be.wl
 name: PersonSkills
+service: ZGW_UI5CON_SRV
+
+Remove /FG2 from service url in manifest.json
 
  - Add CoreService
  
@@ -195,18 +198,24 @@ name: PersonSkills
  - add service request in objectmatched fn
 
 				this.getModel().metadataLoaded().then(() => {
-					var sObjectPath = this.getModel().createKey("Persons", {
-						Id: sObjectId
-					});
-					this.getOwnerComponent().oListSelector.selectAListItem("/" + sObjectPath);
-					
-					this.PersonService.getPerson(sObjectId);
-
-				});
+    				var sObjectPath = this.getModel().createKey("Persons", {
+    					Id: sObjectId
+    				});
+    				this.getOwnerComponent().oListSelector.selectAListItem("/" + sObjectPath);
+    
+    				this.PersonService.getPerson(sObjectId).then((result)=>{
+    					this.setModel(new JSONModel(result.data),"pers");
+    				});
+    
+    			});
 
 		
  - bind person details
-		???
+ 
+		{pers>/Firstname}
+        items="{pers>/PersonHasSkills/results}"
+        pers>
+
 - add state
 	- add base object
 
@@ -288,7 +297,7 @@ name: PersonSkills
 	
 	- create person state
 
-            sap.ui.define(["../model/BaseObject","../model/Person"], function (BaseObject, Person) {
+            sap.ui.define(["../model/BaseObject"], function (BaseObject) {
             	"use strict";
             	var PersonState = BaseObject.extend("be.wl.PersonSkills.state.PersonState", {
             		constructor: function (oService) {
@@ -308,6 +317,7 @@ name: PersonSkills
 				getPerson: function (id) {
 					return this.PersonService.getPerson(id).then((result) => {
 						this.Person = result.data;
+						this.display = true;
 						this.updateModel();
 						return this.Person;
 					});
@@ -409,7 +419,8 @@ name: PersonSkills
                 });
         
     - setskills update personstate -> use Person object
-				
+    
+				"../model/Person"
 			    this.Person = new Person();
 			    this.Person = new Person(result.data);
 			
@@ -608,7 +619,7 @@ name: PersonSkills
         
 	- on more thing
 	    - reactive!
-    	    -  UI Changes properties
+    	    -  UI Changes properties -> only on UI5 changes
     	        -  Skill
     	        
                 		SkillNameChanged: function (oEvent) {
@@ -628,7 +639,7 @@ name: PersonSkills
                 				this.addEmptySkill();
                 			}
                 		},
-    	    -  Calculated properties - Person total
+    	    -  Calculated properties - Person total - changes of other values
     	        
                     Object.defineProperty(this, "Total", {
         				get: () => {
