@@ -65,7 +65,7 @@
 				<Table items="{pers>/Person/Skills}" fixedLayout="false" visible="{= !${pers>/display}}">
 					<headerToolbar>
 						<Toolbar>
-							<Title text="Total: {pers>/Person/Total}" titleStyle="H3" level="H3"/>
+							<Title text="Average: {pers>/Person/Total}" titleStyle="H3" level="H3"/>
 						</Toolbar>
 					</headerToolbar>
 					<columns>
