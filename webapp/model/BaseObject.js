@@ -70,7 +70,7 @@ sap.ui.define([
 					return prev[curr + "Changed"];
 				}
 				return curr && curr.length > 0 && prev ? prev[curr] : prev;
-			}, this);
+			}, this.data);
 		},
 		callChangeFunction: function (fChangeFunction, scope, args) {
 			fChangeFunction && fChangeFunction.apply(scope, args);
@@ -92,7 +92,7 @@ sap.ui.define([
 		},
 		getModel: function () {
 			if (!this.model) {
-				this.model = new JSONModel(this, true);
+				this.model = new JSONModel(this.data, true);
 				//this.model.setData(this);
 			}
 			return this.model;
