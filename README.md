@@ -301,12 +301,14 @@ Remove /FG2 from service url in manifest.json
             	"use strict";
             	var PersonState = BaseObject.extend("be.wl.PersonSkills.state.PersonState", {
             		constructor: function (oService) {
-            			BaseObject.call(this, {
-            				isState: true
-            			});
-            			this.PersonService = oService;
-            			this.Person = {};
-            			this.display = true;
+							this.data = {
+								Person : {},
+								display : true
+							};
+							this.PersonService = oService;
+							BaseObject.call(this, {
+								isState: true
+							});
             		}	});
             	return PersonState;
             });
@@ -316,10 +318,10 @@ Remove /FG2 from service url in manifest.json
 
 				getPerson: function (id) {
 					return this.PersonService.getPerson(id).then((result) => {
-						this.Person = result.data;
-						this.display = true;
+						this.data.Person = result.data;
+						this.data.display = true;
 						this.updateModel();
-						return this.Person;
+						return this.data.Person;
 					});
 				}
 			
@@ -421,8 +423,8 @@ Remove /FG2 from service url in manifest.json
     - setskills update personstate -> use Person object
     
 				"../model/Person"
-			    this.Person = new Person();
-			    this.Person = new Person(result.data);
+			    this.data.Person = new Person();
+			    this.data.Person = new Person(result.data);
 			
 	- update view -> remove results
 		
@@ -431,9 +433,9 @@ Remove /FG2 from service url in manifest.json
     - Create empty Person object
     
     		createPerson: function () {
-    			this.Person = new Person();
-    			this.Person.addEmptySkill();
-    			this.display = false;
+    			this.data.Person = new Person();
+    			this.data.Person.addEmptySkill();
+    			this.data.display = false;
     			this.updateModel();
     		},
 
@@ -574,7 +576,7 @@ Remove /FG2 from service url in manifest.json
         - state
             
         		newPerson: function () {
-        			return this.PersonService.createPerson(this.Person).then((result) => result.data.Id);
+        			return this.PersonService.createPerson(this.data.Person).then((result) => result.data.Id);
         		},
 
 	- add toolbar for save
@@ -613,7 +615,7 @@ Remove /FG2 from service url in manifest.json
         - add to state
             
         		deletePersonSkill: function (iIndex) {
-        			this.Person.deleteSkill(iIndex);
+        			this.data.Person.deleteSkill(iIndex);
         			// this.updateModel();
         		}
         
