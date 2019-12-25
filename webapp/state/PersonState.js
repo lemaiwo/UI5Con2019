@@ -1,28 +1,26 @@
 sap.ui.define([
-	"../model/BaseObject",
+	"../state/BaseState",
 	"../model/Person",
 	"../libs/observable-slim"
-], function (BaseObject, Person, obs) {
+], function (BaseState, Person, obs) {
 	"use strict";
-	var PersonState = BaseObject.extend("be.wl.PersonSkills.state.PersonState", {
+	var PersonState = BaseState.extend("be.wl.PersonSkills.state.PersonState", {
 		constructor: function (oService) {
-			this.data = {
-				Person : new Person(),
-				display : true
-			};
-			this.PersonService = oService;
-			BaseObject.call(this, {
-				isState: true
+			this.data = ObservableSlim.create({
+				Person: new Person(),
+				display: true
+			}, true, (changes) => {
+				console.log(JSON.stringify(changes));
+				this.updateModel();
 			});
+			this.PersonService = oService;
+			BaseState.call(this);
 
 		},
 		createPerson: function () {
 			// this.Person = new Person();
 			var oPerson = new Person();
-			this.data.Person = ObservableSlim.create(oPerson, true,  (changes)=>{
-				console.log(JSON.stringify(changes));
-				this.updateModel();
-			});
+			this.data.Person = new Person();
 			this.data.Person.addEmptySkill();
 			this.data.display = false;
 			// this.updateModel();
@@ -31,7 +29,7 @@ sap.ui.define([
 			return this.PersonService.getPerson(id).then((result) => {
 				this.data.Person = new Person(result.data);
 				this.data.display = true;
-				this.updateModel();
+				// this.updateModel();
 				return this.data.Person;
 			});
 		},
