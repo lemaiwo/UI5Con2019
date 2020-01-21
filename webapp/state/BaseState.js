@@ -5,7 +5,6 @@ sap.ui.define([
 	"use strict";
 	return Object.extend("be.wl.PersonSkills.state.BaseState", {
 		constructor: function (data) {
-			this.initDirtyCheck();
 			this.getModel().attachPropertyChange((oProperty) => {
 				// this.isDirty = this.isDirtyCheck();
 				// sap && sap.ushell && sap.ushell.Container && sap.ushell.Container.setDirtyFlag(this.isDirty);
